@@ -4,41 +4,54 @@ MODDIR="$MODPATH"
 
 SRC_FILE="/product/etc/fonts_customization.xml"
 DEST_FILE="$MODDIR/system/product/etc/fonts_customization.xml"
-SOURCE_XML="$MODDIR/Source.xml"
 
-if [ -f "$DEST_FILE" ] && [ -f "$SOURCE_XML" ]; then
+if [ ! -f "$SRC_FILE" ]; then
     ui_print " "
-    ui_print "- 检测到模块已安装，使用已有 Source.xml 进行合并..."
-else
-
-    if [ ! -f "$SRC_FILE" ]; then
-        ui_print " "
-        ui_print "- 此系统环境不受支持。"
-        exit 1
-    fi
-
-    mkdir -p "$MODDIR/system/product/etc"
-    if cp -af "$SRC_FILE" "$DEST_FILE"; then
-        ui_print " "
-        ui_print "- 正在获取系统字体配置文件..."
-    else
-        ui_print " "
-        ui_print "- 获取系统字体配置文件失败。"
-        ui_print " "
-        exit 1
-    fi
-
-    if ! cp -af "$SRC_FILE" "$SOURCE_XML"; then
-        ui_print "- 获取系统字体配置文件失败。"
-        exit 1
-    fi
-
+    ui_print "- 此系统环境不受支持。"
+    exit 1
 fi
+
+TMP_SRC=$(mktemp)
+if [ ! -f "$TMP_SRC" ]; then
+    ui_print " "
+    ui_print "- 创建临时文件失败。"
+    exit 1
+fi
+
+if grep -q "<!-- MiSans by KiriChen-->" "$SRC_FILE"; then
+    # 旧配置清理
+    awk '
+    /<!-- MiSans by KiriChen-->/ { skip=30; next }
+    skip>0 { skip--; next }
+    1
+    ' "$SRC_FILE" > "$TMP_SRC"
+    ui_print " "
+    ui_print "- 检测到旧配置，正在清理.. "
+    sleep 3
+else
+    # 没有旧配置
+    cp -af "$SRC_FILE" "$TMP_SRC"
+fi
+
+# 将处理后的系统文件复制到模块目录
+mkdir -p "$MODDIR/system/product/etc"
+if cp -af "$TMP_SRC" "$DEST_FILE"; then
+    ui_print " "
+    ui_print "- 获取到系统字体配置文件。"
+    sleep 1
+else
+    ui_print " "
+    ui_print "- 获取系统字体配置文件失败。"
+    rm -f "$TMP_SRC"
+    exit 1
+fi
+rm -f "$TMP_SRC"
 
 FONT_CONFIG_TMP=$(mktemp)
 if unzip -p "$ZIPFILE" "FontConfig.xml" > "$FONT_CONFIG_TMP"; then
     ui_print " "
     ui_print "- 正在读取 FontConfig.xml 字体配置文件..."
+    sleep 2
 else
     ui_print " "
     ui_print "- FontConfig.xml 字体配置文件读取失败。"
@@ -55,13 +68,15 @@ if [ ! -f "$TMPFILE" ]; then
     exit 1
 fi
 
+# 配置合并
 ui_print " "
 ui_print "- 正在合并系统字体配置文件..."
 sleep 4
-sed '$d' "$SOURCE_XML" > "$TMPFILE"
+sed '$d' "$DEST_FILE" > "$TMPFILE"
 cat "$FONT_CONFIG_TMP" >> "$TMPFILE"
 echo "" >> "$TMPFILE"
-sed -n '$p' "$SOURCE_XML" >> "$TMPFILE"
+echo "" >> "$TMPFILE"
+sed -n '$p' "$DEST_FILE" >> "$TMPFILE"
 mv -f "$TMPFILE" "$DEST_FILE"
 rm -f "$FONT_CONFIG_TMP"
 
