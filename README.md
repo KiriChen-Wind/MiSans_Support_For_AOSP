@@ -6,4 +6,4 @@
 
 理论支持 Magisk、APatch、KernelSU，仅在APatch上测试通过。
 
-安装此模块后，即可在 系统自定义-字体 中找到MiSans选项。
+安装此模块后，即可在 系统自定义-字体 中找到 MiSans 字体选项。
