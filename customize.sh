@@ -56,7 +56,7 @@ if [ ! -f "$TMPFILE" ]; then
 fi
 
 ui_print " "
-ui_print "- 正在合并系统字体配置文件（使用 Source.xml）..."
+ui_print "- 正在合并系统字体配置文件..."
 sleep 4
 sed '$d' "$SOURCE_XML" > "$TMPFILE"
 cat "$FONT_CONFIG_TMP" >> "$TMPFILE"
