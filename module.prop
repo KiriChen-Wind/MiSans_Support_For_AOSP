@@ -1,0 +1,6 @@
+id=aospmisans
+name=MiSans Support For AOSP
+version=️1.0
+versionCode=20251223
+author=KiriChen
+description=为支持自定义字体的AOSP系统增加MiSans支持。
