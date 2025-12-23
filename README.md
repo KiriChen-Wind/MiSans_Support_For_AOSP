@@ -1,0 +1,2 @@
+# MiSans_Support_For_AOSP
+为支持自定义字体的AOSP系统增加MiSans支持。
