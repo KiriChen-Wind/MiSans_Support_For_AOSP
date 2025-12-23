@@ -1,4 +1,4 @@
-# MiSans_Support_For_AOSP
+# MiSans Support For AOSP
 为支持自定义字体的 AOSP 系统增加 MiSans 支持。\
 并支持多档字重（100-900） 。
 
